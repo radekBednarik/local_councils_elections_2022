@@ -2,5 +2,5 @@
     root = "https://volby.cz"
 
 [api.resources]
-    vysledky_okresy_obce = "/pls/ps2021/vysledky_okres?nuts={{nuts}}"
-    vysledky_stat_kraje = "/pls/ps2021/vysledky"
+    vysledky_okresy_obce = "/pls/kv2022/vysledky_obce_okres?nuts={{nuts}}"
+    vysledky_stat_kraje = "/pls/kv2022/vysledky"
