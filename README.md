@@ -1,4 +1,4 @@
-# Czech Elections 2021 shell data feed
+# Czech Council Elections 2022 shell data feed
 
 Fetches data from the Czech Statistical Office Open data server, parses them and outputs them into the console.
 
