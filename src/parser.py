@@ -6,7 +6,6 @@
 from typing import Any, Optional
 
 from lxml import etree
-from src.decorators import add_party_name
 
 
 def parse_xml(
@@ -61,7 +60,6 @@ def nested_loops(
 # pylint: disable=unused-argument
 
 
-@add_party_name
 def parse_county_data(
     parsed_data: Any, city: Optional[str] = None, **kwargs
 ) -> dict[str, Any]:
@@ -85,8 +83,8 @@ def parse_county_data(
     master_key: str = ""
 
     for level_1 in authorities_data_level:
-        if city is None and "OKRES" in level_1.tag:
-            master_key = level_1.attrib["NUTS_OKRES"]
+        if city is None and "OBEC" in level_1.tag:
+            master_key = level_1.attrib["KODZASTUP"]
             output[master_key] = {"descriptors": dict(level_1.attrib), "data": []}
 
             return nested_loops(level_1, output, master_key)
@@ -94,9 +92,9 @@ def parse_county_data(
         if (
             city is not None
             and "OBEC" in level_1.tag
-            and city.strip() == level_1.attrib["NAZ_OBEC"]
+            and city.strip() == level_1.attrib["NAZEVZAST"]
         ):
-            master_key = level_1.attrib["CIS_OBEC"]
+            master_key = level_1.attrib["KODZASTUP"]
             output[master_key] = {"descriptors": dict(level_1.attrib), "data": []}
 
             return nested_loops(level_1, output, master_key)
@@ -104,20 +102,11 @@ def parse_county_data(
     return output
 
 
-@add_party_name
-def parse_state_data(
-    parsed_data: Any, district: Optional[str] = None, **kwargs
-) -> dict[str, Any]:
+def parse_state_data(parsed_data: Any, **kwargs) -> dict[str, Any]:
     """Parses XML object to retrieve data as `dict`.
-
-    If `district` is not provided, returns state level data (CR - tagged
-    element). Otherwise returns district level of data.
-
-    `district` value must be in <1, 14> range inclusive.
 
     Args:
         parsed_data (Any): lxml Element object representing XML data
-        district (Optional[int], optional): Number of district. Defaults to None.
 
     Returns:
         dict[str, Any]: parsed data as `dict`.
@@ -126,31 +115,14 @@ def parse_state_data(
     top_level_data: list[Any] = list(parsed_data)
     master_key: str = ""
 
-    for level_1 in top_level_data:
-        master_key = level_1.tag
-
-        if district is None and "CR" in level_1.tag:
+    try:
+        for level_1 in top_level_data:
+            master_key = level_1.attrib["OZNAC_TYPU"]
             output[master_key] = {"data": []}
-            return nested_loops(level_1, output, master_key)
-
-        if district is not None:
-            # check if district value is in <1, 14>
-            if (int(district)) not in list(range(1, 15)):
-                raise IndexError(
-                    f"{district} value is out of bounds.\
-                    Must be in integer interval <1, 14> inclusive."
-                )
-            items: list[tuple[str, str]] = list(level_1.attrib.items())
-
-            for key, value in items:
-                if key == "CIS_KRAJ" and value == district:
-                    output[master_key] = {
-                        "descriptors": dict(level_1.attrib),
-                        "data": [],
-                    }
-                    return nested_loops(level_1, output, master_key)
-
-    raise RuntimeError("State level XML data were not parsed!")
+            nested_loops(level_1, output, master_key)
+        return output
+    except RuntimeError as exc:
+        raise RuntimeError(f"State level XML data were not parsed!: {exc}") from exc
 
 
 # pylint: enable=unused-argument

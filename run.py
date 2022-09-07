@@ -1,5 +1,5 @@
-'''Runner.
-'''
+"""Runner.
+"""
 
 from src.main import main
 

@@ -75,15 +75,10 @@ def worker():
             city=city_name,
         )
 
-    if hasattr(parsed, "district"):
-        district = str(parsed.district) if parsed.district is not None else None
-        return wrapper(
-            get_state_data,
-            parse_xml,
-            parse_state_data,
-            print_colored_data,
-            resource=resource_state,
-            district=district,
-        )
-
-    return None
+    return wrapper(
+        get_state_data,
+        parse_xml,
+        parse_state_data,
+        print_colored_data,
+        resource=resource_state,
+    )
