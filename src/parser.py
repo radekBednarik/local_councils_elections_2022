@@ -87,7 +87,7 @@ def parse_county_data(
             master_key = level_1.attrib["KODZASTUP"]
             output[master_key] = {"descriptors": dict(level_1.attrib), "data": []}
 
-            return nested_loops(level_1, output, master_key)
+            nested_loops(level_1, output, master_key)
 
         if (
             city is not None
@@ -97,7 +97,7 @@ def parse_county_data(
             master_key = level_1.attrib["KODZASTUP"]
             output[master_key] = {"descriptors": dict(level_1.attrib), "data": []}
 
-            return nested_loops(level_1, output, master_key)
+            nested_loops(level_1, output, master_key)
 
     return output
 
