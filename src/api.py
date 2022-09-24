@@ -1,13 +1,18 @@
 """Handles API calls to opend data XML data source.
 """
 
+import sys
+from time import sleep
+
 from requests import Response, get
 
-from src.utils import retrieve_error_message, replace_substring
 from src.decorators import cache
+from src.utils import replace_substring, retrieve_error_message
 
 
-def call(resource: str, root_: str = "https://www.volby.cz") -> Response:
+def call(
+    resource: str, root_: str = "https://www.volby.cz", counter: int = 0
+) -> Response:
     """Calls the web resource and returns response.
 
     Response is `requests.Response` object
@@ -15,13 +20,27 @@ def call(resource: str, root_: str = "https://www.volby.cz") -> Response:
     Args:
         resource (str): resource part of API URL
         root (str, optional): root part of the API URL. Defaults to `https://www.volby.cz`.
+        counter (int, optional): used for recursive call in case of request failure
 
     Returns:
         Response: requests object representing response
     """
-    response: Response = get(f"{root_}{resource}")
-    response.raise_for_status()
-    return response
+    limit: int = 10
+    try:
+        response: Response = get(f"{root_}{resource}")
+        response.raise_for_status()
+        return response
+    except Exception as exc:
+        if counter < limit:
+            counter += 1
+            print(
+                f"Error when trying to call the endpoint. Waiting for {counter} seconds.... Try {counter} out of {limit}"
+            )
+            sleep(counter)
+            call(resource, counter=counter)
+        else:
+            print(f"[!] ERROR when calling {resource}: {exc}")
+            sys.exit(1)
 
 
 def validate(response_text: str, start_tag: str = "<CHYBA>") -> tuple[bool, str]:
