@@ -44,7 +44,7 @@ def validate(response_text: str, start_tag: str = "<CHYBA>") -> tuple[bool, str]
 # pylint: disable=unused-argument
 
 
-@cache(time_delta=60, location="cache.tmp", resource_template=r"{{nuts}}")
+@cache(time_delta=600, location="cache.tmp", resource_template=r"{{nuts}}")
 def get_county_data(
     nuts: str = None, resource: str = None, **kwargs
 ) -> tuple[bool, str]:
@@ -67,7 +67,7 @@ def get_county_data(
     raise TypeError("Arguments can be only of type {str}!")
 
 
-@cache(time_delta=60, location="cache.tmp", resource_template=None)
+@cache(time_delta=600, location="cache.tmp", resource_template=None)
 def get_state_data(resource: str = None, **kwargs) -> tuple[bool, str]:
     """Returns data from the state level as `str`. This needs to be
     further parsed by XML parser.
